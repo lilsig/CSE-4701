@@ -167,7 +167,80 @@ INTO TABLE BOOK_LOANS
 FIELDS TERMINATED BY ','
 LINES TERMINATED BY '\n';
 
--- Question 5 
+-- Question 5
+
+-- a. How many copies of the book titled The Lost Tribe are owned by the library branch whose name is "Sharpstown"?
+
+SELECT No_of_copies
+FROM BOOK_COPIES
+WHERE Book_id = 'B1' AND Branch_id = 'BR1';
+
+-- b. How many copies of the book titled The Lost Tribe are owned by each library branch?
+
+SELECT Branch_id, No_of_copies
+FROM BOOK_COPIES
+WHERE Book_id = 'B1';
+
+-- c. Retrieve the names of all borrowers who do not have any books checked out.
+
+SELECT Name
+FROM BORROWER
+WHERE Card_no NOT IN (SELECT Card_no FROM BOOK_LOANS);
+
+-- d. Assume today is 1/3/2023. For each book that is loaned out from the Sharpstown branch, retrieve the book title, the borrower's name, and the borrower's address.
+
+SELECT BOOK.Title, BORROWER.Name, BORROWER.Address
+FROM BOOK_LOANS
+INNER JOIN BOOK ON BOOK.Book_id = BOOK_LOANS.Book_id
+INNER JOIN BORROWER ON BORROWER.Card_no = BOOK_LOANS.Card_no
+WHERE BOOK_LOANS.Branch_id = 'BR1' AND BOOK_LOANS.Date_out <= '2023-01-03' AND BOOK_LOANS.Due_date >= '2023-01-03';
+
+-- e. For each library branch, retrieve the branch name and the total number of books loaned out from that branch.
+
+SELECT LIBRARY_BRANCH.Branch_name, COUNT(BOOK_LOANS.Book_id) AS Total_Books
+FROM LIBRARY_BRANCH
+INNER JOIN BOOK_LOANS ON BOOK_LOANS.Branch_id = LIBRARY_BRANCH.Branch_id
+GROUP BY LIBRARY_BRANCH.Branch_name;
+
+-- f. Retrieve the names, addresses, and number of books checked out for all borrowers who have more than two books checked out.
+
+SELECT BORROWER.Name, BORROWER.Address, COUNT(BOOK_LOANS.Book_id) AS Total_Books
+FROM BORROWER
+INNER JOIN BOOK_LOANS ON BOOK_LOANS.Card_no = BORROWER.Card_no
+GROUP BY BORROWER.Name, BORROWER.Address
+HAVING COUNT(BOOK_LOANS.Book_id) > 2;
+
+
+-- g. For each book authored by "Stephen King", retrieve the title and the number of copies owned by the library branch whose name is "Central".
+
+SELECT BOOK.Title, BOOK_COPIES.No_of_copies
+FROM BOOK
+INNER JOIN BOOK_AUTHORS ON BOOK_AUTHORS.Book_id = BOOK.Book_id
+INNER JOIN BOOK_COPIES ON BOOK_COPIES.Book_id = BOOK.Book_id
+INNER JOIN LIBRARY_BRANCH ON LIBRARY_BRANCH.Branch_id = BOOK_COPIES.Branch_id
+WHERE BOOK_AUTHORS.Author_name = 'Stephen King' AND LIBRARY_BRANCH.Branch_name = 'Central';
+
+-- h. Assume today is 2/2/2023. Find books that cannot be loaned because all coies in the library branch have been completely loaned out. Show book title and branch name. (Hint: B3 in BR3).
+
+SELECT BOOK.Title, LIBRARY_BRANCH.Branch_name
+FROM BOOK
+INNER JOIN BOOK_COPIES ON BOOK_COPIES.Book_id = BOOK.Book_id
+INNER JOIN LIBRARY_BRANCH ON LIBRARY_BRANCH.Branch_id = BOOK_COPIES.Branch_id
+WHERE BOOK.Book_id NOT IN (SELECT BOOK_LOANS.Book_id FROM BOOK_LOANS WHERE BOOK_LOANS.Due_date >= '2023-02-02') AND BOOK_COPIES.No_of_copies = 0;
+
+-- i. Find the name and address of the borrower who loaned all the books authored by Henry A. Kissinger.
+
+SELECT BORROWER.Name, BORROWER.Address
+FROM BORROWER
+INNER JOIN BOOK_LOANS ON BOOK_LOANS.Card_no = BORROWER.Card_no
+INNER JOIN BOOK ON BOOK.Book_id = BOOK_LOANS.Book_id
+INNER JOIN BOOK_AUTHORS ON BOOK_AUTHORS.Book_id = BOOK.Book_id
+WHERE BOOK_AUTHORS.Author_name = 'Henry A. Kissinger'
+
+-- Question 6 -- You are now interested in testing how constraints can be set up in MySQL. 
+
+-- a. Add a constraint specifying that BOOK_LOANS.Due_date cannot be earlier than BOOK_LOANS.Date_out. Show your SQL statement to add this constraint.
+
 
 
 
