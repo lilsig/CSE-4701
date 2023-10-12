@@ -215,27 +215,22 @@ HAVING COUNT(BOOK_LOANS.Book_id) > 2;
 
 SELECT BOOK.Title, BOOK_COPIES.No_of_copies
 FROM BOOK
-INNER JOIN BOOK_AUTHORS ON BOOK_AUTHORS.Book_id = BOOK.Book_id
 INNER JOIN BOOK_COPIES ON BOOK_COPIES.Book_id = BOOK.Book_id
-INNER JOIN LIBRARY_BRANCH ON LIBRARY_BRANCH.Branch_id = BOOK_COPIES.Branch_id
-WHERE BOOK_AUTHORS.Author_name = 'Stephen King' AND LIBRARY_BRANCH.Branch_name = 'Central';
+WHERE BOOK.Book_id IN (SELECT BOOK.Book_id FROM BOOK INNER JOIN BOOK_AUTHORS ON BOOK.Book_id = BOOK_AUTHORS.Book_id WHERE BOOK_AUTHORS.Author_name = 'Stephen King') AND BOOK_COPIES.Branch_id = 'BR2';
 
--- h. Assume today is 2/2/2023. Find books that cannot be loaned because all coies in the library branch have been completely loaned out. Show book title and branch name. (Hint: B3 in BR3).
+-- h. Assume today is 2/2/2023. Find books that cannot be loaned because all copies in the library branch have been completely loaned out. Show book title and branch name. (Hint: B3 in BR3).
 
 SELECT BOOK.Title, LIBRARY_BRANCH.Branch_name
 FROM BOOK
 INNER JOIN BOOK_COPIES ON BOOK_COPIES.Book_id = BOOK.Book_id
 INNER JOIN LIBRARY_BRANCH ON LIBRARY_BRANCH.Branch_id = BOOK_COPIES.Branch_id
-WHERE BOOK.Book_id NOT IN (SELECT BOOK_LOANS.Book_id FROM BOOK_LOANS WHERE BOOK_LOANS.Due_date >= '2023-02-02') AND BOOK_COPIES.No_of_copies = 0;
+WHERE BOOK.Book_id IN (SELECT BOOK.Book_id FROM BOOK INNER JOIN BOOK_AUTHORS ON BOOK.Book_id = BOOK_AUTHORS.Book_id WHERE BOOK_AUTHORS.Author_name = 'Steven McDonald') AND BOOK_COPIES.No_of_copies = 0;
 
 -- i. Find the name and address of the borrower who loaned all the books authored by Henry A. Kissinger.
 
 SELECT BORROWER.Name, BORROWER.Address
 FROM BORROWER
-INNER JOIN BOOK_LOANS ON BOOK_LOANS.Card_no = BORROWER.Card_no
-INNER JOIN BOOK ON BOOK.Book_id = BOOK_LOANS.Book_id
-INNER JOIN BOOK_AUTHORS ON BOOK_AUTHORS.Book_id = BOOK.Book_id
-WHERE BOOK_AUTHORS.Author_name = 'Henry A. Kissinger'
+WHERE BORROWER.Card_no IN (SELECT BOOK_LOANS.Card_no FROM BOOK_LOANS WHERE BOOK_LOANS.Book_id IN (SELECT BOOK.Book_id FROM BOOK INNER JOIN BOOK_AUTHORS ON BOOK.Book_id = BOOK_AUTHORS.Book_id WHERE BOOK_AUTHORS.Author_name = 'Henry A. Kissinger'));
 
 -- Question 6 -- You are now interested in testing how constraints can be set up in MySQL. 
 
