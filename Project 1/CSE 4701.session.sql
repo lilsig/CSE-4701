@@ -173,7 +173,7 @@ LINES TERMINATED BY '\n';
 
 SELECT No_of_copies
 FROM BOOK_COPIES
-WHERE Book_id = 'B1' AND Branch_id = 'BR1';
+WHERE Book_id = 'B1' AND Branch_id = 'BR1'; 
 
 -- b. How many copies of the book titled The Lost Tribe are owned by each library branch?
 
@@ -240,6 +240,18 @@ WHERE BOOK_AUTHORS.Author_name = 'Henry A. Kissinger'
 -- Question 6 -- You are now interested in testing how constraints can be set up in MySQL. 
 
 -- a. Add a constraint specifying that BOOK_LOANS.Due_date cannot be earlier than BOOK_LOANS.Date_out. Show your SQL statement to add this constraint.
+
+ALTER TABLE BOOK_LOANS
+ADD CONSTRAINT chk_due_date CHECK (Due_date >= Date_out);
+
+-- b. Insert a tuple into BOOK_LOANS that violates this contraint and see how MySQL reacts. 
+
+INSERT INTO BOOK_LOANS (Book_id, Branch_id, Card_no, Date_out, Due_date)
+VALUES
+    ('B1', 'BR1', 'C1', '2023-01-05', '2023-01-04');
+
+
+
 
 
 
